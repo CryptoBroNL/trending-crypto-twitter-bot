@@ -85,8 +85,8 @@ def get_trending():
         api.update_status(tweet_text_top + tweet_var + tweet_text_bottom)
         print(tweet_text_top, tweet_var, tweet_text_bottom)
         trendinglist_difference.clear()
-        # with open('trendfile.txt', 'wb') as trendfile:
-        #   pickle.dump(trendinglist_name_new, trendfile)
+        with open('trendfile.txt', 'wb') as trendfile:
+            pickle.dump(trendinglist_name_new, trendfile)
     else:
         print("An error has occurred...")
 
