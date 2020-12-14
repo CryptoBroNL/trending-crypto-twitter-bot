@@ -29,34 +29,28 @@ def twitter_auth():
     return api
 
 
+def twitter_auth():
+    # Authenticate to Twitter
+    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
+    # Create API object
+    api = tweepy.API(auth)
+    # Test twitter credentials
+    try:
+        api.verify_credentials()
+        print("Authenticated OK")
+    except:
+        print("Error during authentication")
+    return api
+
+
 def jprint(obj):
     # create a formatted string of the Python JSON object
     text = json.dumps(obj, sort_keys=True, indent=4)
     print(text)
 
-def get_initial_trending():
-    # get initial trending coin data and store in trendinglist
-    trending_data = requests.get('https://api.coingecko.com/api/v3/search/trending')
-    trending_coins = trending_data.json()['coins']
-
-    trendinglist_name = []
-
-    for items in trending_coins:
-        trending_name = items['item']['name'] + " $" + items['item']['symbol']
-        trendinglist_name.append(trending_name)
-
-    with open('trendfile.txt', 'wb') as trendfile:
-        pickle.dump(trendinglist_name, trendfile)
-
-
 def get_trending():
-    with open('trendfile.txt', 'rb') as trendfile:
-        trendinglist_name = pickle.load(trendfile)
 
-    print(trendinglist_name)
-
-    # infinite loop, get new trending data, compare to old trending data and print/tweet any new items
-    # while True:
     try:
         trending_data_new = requests.get('https://api.coingecko.com/api/v3/search/trending')
         trending_coins_new = trending_data_new.json()['coins']
@@ -70,29 +64,68 @@ def get_trending():
         trending_name_new = items['item']['name'] + " $" + items['item']['symbol']
         trendinglist_name_new.append(trending_name_new)
 
-    trendinglist_difference = []
+    api = twitter_auth()
+    client_id = api.me().id
 
-    if set(trendinglist_name) == set(trendinglist_name_new):
+    # Search for last tweet about trending coins
+    if 'Currently Trending' in api.user_timeline(id=client_id, count=1, tweet_mode='extended')[0].full_text:
+        tweet_text_1 = api.user_timeline(id=client_id, count=1, tweet_mode='extended')[0].full_text
+        latest_tweet_topremove = tweet_text_1.split("\n", 3)[3]
+        latest_tweet_trending = latest_tweet_topremove.rsplit("\n", 2)[0]
+        last_trending_text = latest_tweet_trending.splitlines()
+    elif 'Currently Trending' in api.user_timeline(id=client_id, count=2, tweet_mode='extended')[1].full_text:
+        tweet_text_2 = api.user_timeline(id=client_id, count=2, tweet_mode='extended')[1].full_text
+        latest_tweet_topremove = tweet_text_2.split("\n", 3)[3]
+        latest_tweet_trending = latest_tweet_topremove.rsplit("\n", 2)[0]
+        last_trending_text = latest_tweet_trending.splitlines()
+    elif 'Currently Trending' in api.user_timeline(id=client_id, count=3, tweet_mode='extended')[2].full_text:
+        tweet_text_3 = api.user_timeline(id=client_id, count=3, tweet_mode='extended')[2].full_text
+        latest_tweet_topremove = tweet_text_3.split("\n", 3)[3]
+        latest_tweet_trending = latest_tweet_topremove.rsplit("\n", 2)[0]
+        last_trending_text = latest_tweet_trending.splitlines()
+    elif 'Currently Trending' in api.user_timeline(id=client_id, count=4, tweet_mode='extended')[3].full_text:
+        tweet_text_4 = api.user_timeline(id=client_id, count=4, tweet_mode='extended')[3].full_text
+        latest_tweet_topremove = tweet_text_4.split("\n", 3)[3]
+        latest_tweet_trending = latest_tweet_topremove.rsplit("\n", 2)[0]
+        last_trending_text = latest_tweet_trending.splitlines()
+    elif 'Currently Trending' in api.user_timeline(id=client_id, count=5, tweet_mode='extended')[4].full_text:
+        tweet_text_5 = api.user_timeline(id=client_id, count=5, tweet_mode='extended')[4].full_text
+        latest_tweet_topremove = tweet_text_5.split("\n", 3)[3]
+        latest_tweet_trending = latest_tweet_topremove.rsplit("\n", 2)[0]
+        last_trending_text = latest_tweet_trending.splitlines()
+    else:
+        print("Error can't find last trending tweet..")
+
+    last_trending_list = []
+
+    for item in last_trending_text:
+        last_trending = item.strip()
+        last_trending_list.append(last_trending)
+
+    print(last_trending_list)
+    print(trendinglist_name_new)
+
+    if set(last_trending_list) == set(trendinglist_name_new):
         print("Nothing has changed...")
-    elif set(trendinglist_name) != set(trendinglist_name_new):
+    elif set(last_trending_list) != set(trendinglist_name_new):
+        trendinglist_difference = []
         for item in trendinglist_name_new:
-            if item not in trendinglist_name:
+            if item not in last_trending_list:
                 trendinglist_difference.append(item)
-        tweet_text_top = "🔥A new coin has just entered trending on @coingecko!🔥\n\n"
-        tweet_var = '\n'.join(trendinglist_difference)
+        tweet_text_top = " just entered trending on @coingecko! 🔥\n\n"
+        tweet_var_top = ', '.join(trendinglist_difference)
+        tweet_current_trending_text = "🚨Currently Trending🚨:\n"
+        tweet_trending = '\n'.join(trendinglist_name_new)
         tweet_text_bottom = "\n\n#cryptocurrency #bitcoin #crypto"
         api = twitter_auth()
-        api.update_status(tweet_text_top + tweet_var + tweet_text_bottom)
-        print(tweet_text_top, tweet_var, tweet_text_bottom)
+        api.update_status(status=("🔥 " + tweet_var_top + tweet_text_top + tweet_current_trending_text + tweet_trending + tweet_text_bottom))
+        print("🔥 ", tweet_var_top, tweet_text_top, tweet_current_trending_text, tweet_trending, tweet_text_bottom)
         trendinglist_difference.clear()
-        with open('trendfile.txt', 'wb') as trendfile:
-            pickle.dump(trendinglist_name_new, trendfile)
     else:
         print("An error has occurred...")
 
-    # time.sleep(60*30)
-
 get_trending()
+
 
 
 
