@@ -112,7 +112,7 @@ def get_trending():
         for item in trendinglist_name_new:
             if item not in last_trending_list:
                 trendinglist_difference.append(item)
-        tweet_text_top = " entered trending on @coingecko!🔥\n\n"
+        tweet_text_top = " entered trending on @coingecko! 🔥\n\n"
         tweet_var_top = ', '.join(trendinglist_difference)
         tweet_current_trending_text = "Currently Trending🚨:\n"
         tweet_trending = '\n'.join(trendinglist_name_new)
