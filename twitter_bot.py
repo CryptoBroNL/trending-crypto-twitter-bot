@@ -114,7 +114,7 @@ def get_trending():
                 trendinglist_difference.append(item)
         tweet_text_top = " entered trending on @coingecko!🔥\n\n"
         tweet_var_top = ', '.join(trendinglist_difference)
-        tweet_current_trending_text = "Currently Trending:\n"
+        tweet_current_trending_text = "Currently Trending🚨:\n"
         tweet_trending = '\n'.join(trendinglist_name_new)
         tweet_text_bottom = "\n\n#bitcoin #crypto"
         api = twitter_auth()
