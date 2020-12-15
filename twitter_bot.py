@@ -13,22 +13,6 @@ CONSUMER_SECRET = environ['CONSUMER_SECRET']
 ACCESS_KEY = environ['ACCESS_KEY']
 ACCESS_SECRET = environ['ACCESS_SECRET']
 
-
-def twitter_auth():
-    # Authenticate to Twitter
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-    auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
-    # Create API object
-    api = tweepy.API(auth)
-    # Test twitter credentials
-    try:
-        api.verify_credentials()
-        print("Authenticated OK")
-    except:
-        print("Error during authentication")
-    return api
-
-
 def twitter_auth():
     # Authenticate to Twitter
     auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
