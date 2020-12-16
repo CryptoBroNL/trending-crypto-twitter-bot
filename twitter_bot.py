@@ -27,11 +27,10 @@ def twitter_auth():
         print("Error during authentication")
     return api
 
-
-def jprint(obj):
-    # create a formatted string of the Python JSON object
-    text = json.dumps(obj, sort_keys=True, indent=4)
-    print(text)
+# def jprint(obj):
+#     # create a formatted string of the Python JSON object
+#     text = json.dumps(obj, sort_keys=True, indent=4)
+#     print(text)
 
 def get_trending():
 
@@ -97,7 +96,7 @@ def get_trending():
             if item not in last_trending_list:
                 trendinglist_difference.append(item)
         tweet_text_top = " entered trending on @coingecko! 🔥\n\n"
-        tweet_var_top = ', '.join(trendinglist_difference)
+        tweet_var_top = '& '.join(trendinglist_difference)
         tweet_current_trending_text = "Currently Trending🚨:\n"
         tweet_trending = '\n'.join(trendinglist_name_new)
         tweet_text_bottom = "\n\n#bitcoin #crypto"
@@ -107,8 +106,25 @@ def get_trending():
         trendinglist_difference.clear()
     else:
         print("An error has occurred...")
-
+        
+def like_tweets():
+    api = twitter_auth()
+    max_tweets = 5
+    for tweet in tweepy.Cursor(api.search, q='#bitcoin', count=5, result_type="recent").items(max_tweets):
+        try:
+            print(f"Liking tweet {tweet.id} of {tweet.author.name}")
+            api.create_favorite(tweet.id)
+        except:
+            print("Tweets already liked")
+    for tweet in tweepy.Cursor(api.search, q='#crypto', count=5, result_type="recent").items(max_tweets):
+        try:
+            print(f"Liking tweet {tweet.id} of {tweet.author.name}")
+            api.create_favorite(tweet.id)
+        except:
+            print("Tweets already liked")
+            
 get_trending()
+like_tweets()
 
 
 
